@@ -155,7 +155,7 @@ const ItemCard = ({ item, onClaimed }) => {
                             </Typography>
                         </Box>
 
-                        {item.reportedBy && (
+                        {item.reportedBy&&(
                             <Typography variant="caption" color="text.secondary">
                                 Reported by: {item.reportedBy.name || item.reportedBy.email || "User"}
                             </Typography>
@@ -171,7 +171,8 @@ const ItemCard = ({ item, onClaimed }) => {
                 </CardContent>
 
                 <CardActions sx={{ padding: 2.5, paddingTop: 1 }}>
-                    <Button
+                    {item.type!='Lost'?
+                    ( <Button
                         variant="contained"
                         fullWidth
                         disabled={claimed}
@@ -190,7 +191,8 @@ const ItemCard = ({ item, onClaimed }) => {
                         }}
                     >
                         {claimed ? "Claimed" : "Claim This Item"}
-                    </Button>
+                    </Button>):''}
+                   
                 </CardActions>
             </Card>
         </Box>

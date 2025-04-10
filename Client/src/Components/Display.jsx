@@ -260,7 +260,7 @@ const Display = () => {
                   startIcon={<AddIcon  sx={{ color: 'rgb(156, 39, 176)' }}/>}
                   sx={{ fontWeight: 600, color: 'white' }}
                 >
-                  Report Found/Lost Item
+                  Report Lost / Found Item
                 </Button>
               </Box>
             </Grid>
