@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,18 +14,20 @@ import Tooltip from '@mui/material/Tooltip';
 import PersonIcon from '@mui/icons-material/Person';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import userName from './hooks/userName';
+import { Badge, Button, Container } from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
   
-
-  const navigate=useNavigate();
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -36,74 +38,153 @@ const Navbar = () => {
   
   const handleLogout = () => {
     console.log("Logging out");
-      localStorage.removeItem('user');
-      console.log('user logged Out Successfully');
-      setTimeout(()=>{
-        navigate('/login');
-      },1000);
-     
-
+    localStorage.removeItem('user');
+    console.log('user logged Out Successfully');
+    setTimeout(() => {
+      navigate('/login');
+    }, 1000);
     handleClose();
   };
 
-const username=userName();
-const userInitialLetter = username.charAt(0).toUpperCase();
+  const username = userName();
+  const userInitialLetter = username.charAt(0).toUpperCase();
   
   return (
-    <Box sx={{ flexGrow: 1,mb:1 }}>
-      <AppBar position="sticky" sx={{ bgcolor:  'linear-gradient(115deg, #62cff4, #2c67f2)', backdropFilter:'blur(10px)',
-        boxShadow:' 0 2px 10px rgba(44, 103, 242, 0.15)'}}>
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2, display: { xs: 'flex', sm: 'flex' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          
-          <Typography 
-            variant="h6" 
-            component="div" 
-            sx={{ 
-              flexGrow: 1,
-              fontSize: { xs: '1rem', sm: '1.25rem' }
+    <AppBar 
+      position="sticky" 
+      elevation={0}
+      sx={{ 
+        background: 'linear-gradient(90deg, #2c67f2 0%, #4e85f4 100%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          {/* Logo for desktop */}
+          <Typography
+            variant="h5"
+            component={Link}
+            to="/"
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontWeight: 700,
+              letterSpacing: '.1rem',
+              color: 'inherit',
+              textDecoration: 'none',
+              flexGrow: { xs: 0, md: 0 }
             }}
           >
-             <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>Lost And Found </Link>
+            LOST & FOUND
           </Typography>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {!isMobile && (
-              <Typography variant="body1" sx={{ mr: 1 }}>
-                {username}
-              </Typography>
-            )}
-            
-            <Tooltip title="Account settings">
-              <IconButton
-                onClick={handleMenu}
-                size="small"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                color="inherit"
-              >
-                <Avatar 
-                  sx={{ 
-                    width: 32, 
-                    height: 32, 
-                    bgcolor: 'secondary.main',
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  {userInitialLetter}
-                </Avatar>
+
+          {/* Menu button for mobile */}
+          <Box sx={{ flexGrow: 0, display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 1 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
+
+          {/* Logo for mobile */}
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              flexGrow: 1,
+              fontWeight: 700,
+              letterSpacing: '.1rem',
+              color: 'inherit',
+              textDecoration: 'none'
+            }}
+          >
+            LOST & FOUND
+          </Typography>
+
+          {/* Nav items for desktop */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
+            <Button 
+              component={Link} 
+              to="/dashboard" 
+              sx={{ my: 2, color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}
+              startIcon={<DashboardIcon />}
+            >
+              Dashboard
+            </Button>
+            <Button 
+              component={Link} 
+              to="/reports" 
+              sx={{ my: 2, color: 'white' }}
+            >
+              Reports
+            </Button>
+            <Button 
+              component={Link} 
+              to="/about" 
+              sx={{ my: 2, color: 'white' }}
+            >
+              About
+            </Button>
+          </Box>
+
+          {/* Right side items */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Notifications */}
+            <Tooltip title="Notifications">
+              <IconButton color="inherit" size="large">
+                <Badge badgeContent={3} color="error">
+                  <NotificationsIcon />
+                </Badge>
               </IconButton>
             </Tooltip>
+
+            {/* User profile */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {!isMobile && (
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    mr: 1.5, 
+                    fontWeight: 500,
+                    display: { xs: 'none', sm: 'block' }
+                  }}
+                >
+                  {username}
+                </Typography>
+              )}
+              
+              <Tooltip title="Account settings">
+                <IconButton
+                  onClick={handleMenu}
+                  size="small"
+                  edge="end"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                >
+                  <Avatar 
+                    sx={{ 
+                      width: 40, 
+                      height: 40, 
+                      bgcolor: 'primary.dark',
+                      border: '2px solid white',
+                      fontSize: '1rem',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {userInitialLetter}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
           
           <Menu
@@ -121,38 +202,51 @@ const userInitialLetter = username.charAt(0).toUpperCase();
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              elevation: 3,
+              elevation: 4,
               sx: {
                 overflow: 'visible',
-                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+                filter: 'drop-shadow(0px 4px 10px rgba(0,0,0,0.15))',
                 mt: 1.5,
-                width: 200,
+                minWidth: 230,
+                borderRadius: 2,
+                '& .MuiMenuItem-root': {
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: 1,
+                  mx: 1,
+                  my: 0.5
+                }
               },
             }}
           >
+            <Box sx={{ px: 2, py: 1.5 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{username}</Typography>
+              <Typography variant="body2" color="text.secondary">User Account</Typography>
+            </Box>
+            <Divider sx={{ my: 1 }} />
             <MenuItem onClick={handleClose}>
               <ListItemIcon>
-                <PersonIcon fontSize="small" />
+                <PersonIcon fontSize="small" color="primary" />
               </ListItemIcon>
-              Profile
+              <Typography>My Profile</Typography>
             </MenuItem>
             <MenuItem onClick={handleClose}>
               <ListItemIcon>
-                <EqualizerIcon fontSize="small" />
+                <EqualizerIcon fontSize="small" color="primary" />
               </ListItemIcon>
-              Statics
+              <Typography>Statistics</Typography>
             </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout}>
+            <Divider sx={{ my: 1 }} />
+            <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" color="error" />
               </ListItemIcon>
-              <Typography color="error">Logout</Typography>
+              <Typography>Logout</Typography>
             </MenuItem>
           </Menu>
         </Toolbar>
-      </AppBar>
-    </Box>
+      </Container>
+    </AppBar>
   );
 };
 

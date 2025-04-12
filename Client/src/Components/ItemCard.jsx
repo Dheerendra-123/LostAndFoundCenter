@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -15,54 +15,27 @@ import {
     LocationOn as LocationIcon,
     Today as TodayIcon
 } from '@mui/icons-material';
-import { handleError, handleSuccess } from '../Utils/tostify';
 
 const ItemCard = ({ item, onClaimed }) => {
+    console.log("CliamedBy", item.claimedBy);
     const [claimed, setClaimed] = useState(item.claimStatus || !!item.claimedBy);
-
+    const navigate = useNavigate(); 
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const handleClaim = async () => {
-        try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const userId = user?._id;
-
-            if (!userId) {
-                alert("User not logged in or ID missing.");
-                return;
-            }
-
-            const res = await axios.patch(
-                `http://localhost:8000/api/form/claim/${item.id}`,
-                {
-                    type: 'claim',
-                    reportedBy: userId
-                },
-                { withCredentials: true }
-            );
-
-            handleSuccess(res.data.message);
-            setClaimed(true);
-            if (onClaimed) onClaimed();
-        } catch (err) {
-            console.error(err);
-            handleError(
-                err.response?.data?.message || "Failed to claim item. Please try again."
-            );
-        }
+    const handleViewBlogPost = () => {
+        navigate(`/blog-post/${item.id}`, { state: { item } });
     };
-
 
     return (
         <Box display='flex' justifyContent='flex-start'>
             <Card
                 sx={{
                     width: 340,
-                    height: 480,
+                    height: 490,
                     display: 'flex',
                     flexDirection: 'column',
                     boxShadow: 3,
@@ -155,44 +128,62 @@ const ItemCard = ({ item, onClaimed }) => {
                             </Typography>
                         </Box>
 
-                        {item.reportedBy&&(
+                        {item.reportedBy && (
                             <Typography variant="caption" color="text.secondary">
                                 Reported by: {item.reportedBy.name || item.reportedBy.email || "User"}
                             </Typography>
                         )}
-
-                        {/* ✅ Show who claimed it */}
-                        {claimed && item.claimedBy && (
+                         { item.contact?.phone && (
                             <Typography variant="caption" color="text.secondary">
-                                Claimed by: {item.claimedBy.name || item.claimedBy.email || "User"}
+                                Mobile No: {item.contact.phone|| item.contact?.phone || "phone Number"}
                             </Typography>
                         )}
+
                     </Stack>
                 </CardContent>
 
-                <CardActions sx={{ padding: 2.5, paddingTop: 1 }}>
-                    {item.type!='Lost'?
-                    ( <Button
-                        variant="contained"
-                        fullWidth
-                        disabled={claimed}
-                        onClick={handleClaim}
-                        sx={{
-                            borderRadius: 1.5,
-                            textTransform: 'none',
-                            py: 1,
-                            fontWeight: 600,
-                            boxShadow: 2,
-                            transition: 'all 0.2s',
-                            '&:hover': {
-                                boxShadow: 4,
-                                transform: 'translateY(-2px)'
-                            }
-                        }}
-                    >
-                        {claimed ? "Claimed" : "Claim This Item"}
-                    </Button>):''}
-                   
+                <CardActions sx={{ padding: 2.5, paddingTop: 1}}>
+                    {item.type !== 'Lost' ? (
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={handleViewBlogPost} // Change to navigate to blog post
+                            sx={{
+                                borderRadius: 1.5,
+                                textTransform: 'none',
+                                py: 1,
+                                fontWeight: 600,
+                                boxShadow: 2,
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                    boxShadow: 4,
+                                    transform: 'translateY(-2px)'
+                                }
+                            }}
+                        >
+                            {claimed ? "View Claimed Item" : "Claim This Item"}
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={handleViewBlogPost} // Add navigation for lost items too
+                            sx={{
+                                borderRadius: 1.5,
+                                textTransform: 'none',
+                                py: 1,
+                                fontWeight: 600,
+                                boxShadow: 2,
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                    boxShadow: 4,
+                                    transform: 'translateY(-2px)'
+                                }
+                            }}
+                        >
+                            View Details
+                        </Button>
+                    )}
                 </CardActions>
             </Card>
         </Box>
@@ -200,4 +191,3 @@ const ItemCard = ({ item, onClaimed }) => {
 };
 
 export default ItemCard;
-

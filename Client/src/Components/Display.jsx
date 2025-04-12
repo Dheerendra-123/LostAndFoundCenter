@@ -16,6 +16,8 @@ import {
   useTheme,
   useMediaQuery,
   Avatar,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -24,8 +26,9 @@ import {
 
 import ItemCard from './ItemCard';
 import lostAndFoundInmg from '../assets/lost-and-found.png';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Loading from '../Utils/Loading';
+import { handleError } from '../Utils/tostify';
 
 const Display = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -34,25 +37,36 @@ const Display = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [enableSearch, setEnableSearch] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null); // Add debugging info
+  const [debugInfo, setDebugInfo] = useState(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleSessionExpired = () => {
+    setSessionExpired(true);
+    
+    localStorage.removeItem("user"); 
+
+    setTimeout(() => {
+      navigate('/login');
+    }, 3000);
   };
 
   const fetchItems = async () => {
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:8000/api/forms/all', { withCredentials: true });
-      
+  
       console.log("API Response:", response.data);
-      
+  
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setItems(response.data.data);
-        
-        // Set some debug info about the first item for inspection
+  
         if (response.data.data.length > 0) {
           setDebugInfo(response.data.data[0]);
         }
@@ -62,11 +76,19 @@ const Display = () => {
       setLoading(false);
     } catch (err) {
       console.error("Error fetching items:", err);
-      setError(err.response?.data?.message || err.message);
+  
+      if (err.response?.status === 401) {
+        // Handle session expiry with a more user-friendly approach
+        handleError("Session expired. You will be redirected to login page.");
+        handleSessionExpired();
+      } else {
+        setError(err.response?.data?.message || err.message);
+      }
+  
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     fetchItems();
   }, []);
@@ -190,6 +212,20 @@ const Display = () => {
 
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
+      {/* Session Expired Snackbar */}
+      <Snackbar 
+        open={sessionExpired} 
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          severity="warning" 
+          variant="filled"
+          sx={{ width: '100%', boxShadow: 4 }}
+        >
+          Your session has expired. Redirecting to login page...
+        </Alert>
+      </Snackbar>
+      
       {/* Debugging Info */}
       {debugInfo && (
         <Container maxWidth="lg" sx={{ mb: 2 }}>

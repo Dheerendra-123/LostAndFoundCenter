@@ -13,14 +13,16 @@ const claimForm = async (req, res) => {
   
       // Save the user who claimed it
       form.claimStatus = true;
-      form.claimedBy = req.user.id; // assuming `ensureAuthentication` sets req.user
+      form.claimedBy = req.user._id;
+      console.log(form.claimedBy);
   
       await form.save();
   
       res.status(200).json({
         success: true,
         message: 'Item claimed successfully',
-        data: form
+        data: form,
+        claimedBy:form.claimedBy,
       });
   
       console.log("This item is Claimed", form);

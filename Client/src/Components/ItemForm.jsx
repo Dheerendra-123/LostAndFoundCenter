@@ -303,7 +303,7 @@ const LostItemForm = () => {
             >
               <img src={CardLogo} alt="card logo" height="50px" />
               <Box>
-                <Typography variant="h5" color="white">Report Lost Item Form</Typography>
+                <Typography variant="h5" color="white">Report Lost / Found Item</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 100 }}>
                   Please provide detailed information to help us find your item
                 </Typography>
@@ -358,7 +358,7 @@ const LostItemForm = () => {
               <Box sx={{ flex: 1 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Date Lost"
+                    label="Date Lost / Found"
                     value={formData.date_lost}
                     onChange={handleDateChange}
                     slotProps={{

@@ -17,7 +17,7 @@ app.use(express.json());
 require('dotenv').config();
 app.use(cookieParser());
 
-mongoose.connect('mongodb+srv://dheerendradixit321:dixit%40123d@cluster0.rjfcb.mongodb.net/',{dbName:"LostAndFound"}).then(()=>{
+mongoose.connect(process.env.MANGO_URI,{dbName:"LostAndFound"}).then(()=>{
     console.log("MongoDB Connected");
 }).catch((error)=>{
 console.log(error);

@@ -12,6 +12,7 @@ import Signup from './Components/SignUp';
 import ReportLostItemForm from './Components/ItemForm';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import BlogPost from './Components/postDisplay';
 
 // Protected route component for authenticated users
 const ProtectedRoute = () => {
@@ -52,6 +53,10 @@ const App = () => {
             {
               path: 'reportForm',
               element: <ReportLostItemForm />
+            },
+            {
+              path:"/blog-post/:id" ,
+              element:<BlogPost />
             }
           ]
         }
