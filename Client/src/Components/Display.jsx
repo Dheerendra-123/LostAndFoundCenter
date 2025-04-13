@@ -78,7 +78,7 @@ const Display = () => {
       console.error("Error fetching items:", err);
   
       if (err.response?.status === 401) {
-        // Handle session expiry with a more user-friendly approach
+
         handleError("Session expired. You will be redirected to login page.");
         handleSessionExpired();
       } else {
@@ -174,7 +174,7 @@ const Display = () => {
           Error Loading Data
         </Typography>
         <Typography variant="body1">
-          {error}. Please try again later.
+         Please try again later.
         </Typography>
         <Button
           variant="contained"

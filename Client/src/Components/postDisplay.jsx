@@ -30,6 +30,7 @@ import {
   BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
 import { handleError, handleSuccess } from '../Utils/tostify';
+import userName from './hooks/userName';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -112,6 +113,8 @@ const BlogPost = () => {
       setClaimDialogOpen(false);
     }
   };
+
+   const name=userName();
 
   if (loading) {
     return (
@@ -641,9 +644,7 @@ const BlogPost = () => {
 
                     <Divider sx={{ my: 2 }} />
 
-                    <Typography variant="subtitle2" gutterBottom>
-                      Contact Details:
-                    </Typography>
+           
 
                     <Box sx={{ mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">
@@ -663,16 +664,7 @@ const BlogPost = () => {
                       </Typography>
                     </Box>
 
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Phone:
-                      </Typography>
-                      <Typography variant="body1">
-                        {item.type === 'Lost'
-                          ? (item.reportedBy?.phone || "Not provided")
-                          : (item.claimedBy?.phone || "Not provided")}
-                      </Typography>
-                    </Box>
+          
                   </Card>
 
                   <Alert severity="info" sx={{ mb: 3 }}>

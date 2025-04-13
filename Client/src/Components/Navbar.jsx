@@ -60,83 +60,44 @@ const Navbar = () => {
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          {/* Logo for desktop */}
-          <Typography
-            variant="h5"
-            component={Link}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontWeight: 700,
-              letterSpacing: '.1rem',
-              color: 'inherit',
-              textDecoration: 'none',
-              flexGrow: { xs: 0, md: 0 }
-            }}
-          >
-            LOST & FOUND
-          </Typography>
+        <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {/* Logo Section */}
+          <Box>
+            {/* Logo for desktop */}
+            <Typography
+              variant="h5"
+              component={Link}
+              to="/"
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                fontWeight: 700,
+                letterSpacing: '.1rem',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              LOST & FOUND
+            </Typography>
 
-          {/* Menu button for mobile */}
-          <Box sx={{ flexGrow: 0, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 1 }}
+            {/* Logo for mobile */}
+            <Typography
+              variant="h6"
+              component={Link}
+              to="/"
+              sx={{
+                display: { xs: 'flex', md: 'none' },
+                fontWeight: 700,
+                letterSpacing: '.1rem',
+                color: 'inherit',
+                textDecoration: 'none'
+              }}
             >
-              <MenuIcon />
-            </IconButton>
-          </Box>
-
-          {/* Logo for mobile */}
-          <Typography
-            variant="h6"
-            component={Link}
-            to="/"
-            sx={{
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontWeight: 700,
-              letterSpacing: '.1rem',
-              color: 'inherit',
-              textDecoration: 'none'
-            }}
-          >
-            LOST & FOUND
-          </Typography>
-
-          {/* Nav items for desktop */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
-            <Button 
-              component={Link} 
-              to="/dashboard" 
-              sx={{ my: 2, color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}
-              startIcon={<DashboardIcon />}
-            >
-              Dashboard
-            </Button>
-            <Button 
-              component={Link} 
-              to="/reports" 
-              sx={{ my: 2, color: 'white' }}
-            >
-              Reports
-            </Button>
-            <Button 
-              component={Link} 
-              to="/about" 
-              sx={{ my: 2, color: 'white' }}
-            >
-              About
-            </Button>
+              LOST & FOUND
+            </Typography>
           </Box>
 
           {/* Right side items */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {/* Notifications */}
             <Tooltip title="Notifications">
               <IconButton color="inherit" size="large">
@@ -147,7 +108,7 @@ const Navbar = () => {
             </Tooltip>
 
             {/* User profile */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
               {!isMobile && (
                 <Typography 
                   variant="body1" 
