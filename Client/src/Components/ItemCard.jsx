@@ -15,11 +15,14 @@ import {
     LocationOn as LocationIcon,
     Today as TodayIcon
 } from '@mui/icons-material';
+import PersonIcon from '@mui/icons-material/Person';
+import PhoneIcon from '@mui/icons-material/Phone';
+
 
 const ItemCard = ({ item, onClaimed }) => {
     console.log("CliamedBy", item.claimedBy);
     const [claimed, setClaimed] = useState(item.claimStatus || !!item.claimedBy);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -129,20 +132,24 @@ const ItemCard = ({ item, onClaimed }) => {
                         </Box>
 
                         {item.reportedBy && (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant="body3" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <PersonIcon fontSize="small" sx={{ color: 'primary.light' }}/>
                                 Reported by: {item.reportedBy.name || item.reportedBy.email || "User"}
                             </Typography>
                         )}
-                         { item.contact?.phone && (
-                            <Typography variant="caption" color="text.secondary">
-                                Mobile No: {item.contact.phone|| item.contact?.phone || "phone Number"}
+
+                        {item.contact?.phone && (
+                            <Typography variant="body3" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <PhoneIcon fontSize="small" sx={{  color: 'primary.light' }}/>
+                                Mobile No: {item.contact.phone || "Phone Number"}
                             </Typography>
                         )}
+
 
                     </Stack>
                 </CardContent>
 
-                <CardActions sx={{ padding: 2.5, paddingTop: 1}}>
+                <CardActions sx={{ padding: 2.5, paddingTop: 1 }}>
                     {item.type !== 'Lost' ? (
                         <Button
                             variant="contained"

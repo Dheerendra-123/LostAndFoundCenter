@@ -30,7 +30,6 @@ import {
   BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
 import { handleError, handleSuccess } from '../Utils/tostify';
-import userName from './hooks/userName';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -54,7 +53,6 @@ const BlogPost = () => {
   const fetchItemDetails = async () => {
     try {
       setLoading(true);
-      // Add your fetch logic here
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -114,7 +112,6 @@ const BlogPost = () => {
     }
   };
 
-   const name=userName();
 
   if (loading) {
     return (
@@ -359,16 +356,17 @@ const BlogPost = () => {
                       }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                        <Avatar sx={{ bgcolor: 'primary.light', mr: 1.5, flexShrink: 0, width: 32, height: 32 }}>
+                        <Avatar sx={{ bgcolor: 'primary.light', mr: 1.5, flexShrink: 0, width: 30, height: 32 }}>
                           <PersonIcon sx={{ fontSize: '1rem' }} />
                         </Avatar>
                         <Box sx={{ width: '100%', overflow: 'hidden' }}>
-                          <Typography variant="caption" color="text.secondary" noWrap>
+                          <Typography variant="body2" noWrap>
                             Reported By
                           </Typography>
                           <Typography
                             variant="body2"
                             fontWeight="medium"
+                            color="text.secondary"
                             sx={{
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
@@ -376,9 +374,10 @@ const BlogPost = () => {
                               width: '100%'
                             }}
                           >
-                            {item.reportedBy.name || item.reportedBy.email || "User"}
+                            {item.reportedBy.name || "User"}
                           </Typography>
                         </Box>
+
                       </Box>
                     </Card>
                   </Grid>
@@ -400,11 +399,11 @@ const BlogPost = () => {
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                      <Avatar sx={{ bgcolor: 'primary.light', mr: 1.5, flexShrink: 0, width: 32, height: 32 }}>
+                      <Avatar sx={{ bgcolor: 'primary.light', mr: 1.5, flexShrink: 0, width: 30, height: 32 }}>
                         <TodayIcon sx={{ fontSize: '1rem' }} />
                       </Avatar>
                       <Box sx={{ width: '100%', overflow: 'hidden' }}>
-                        <Typography variant="caption" color="text.secondary" noWrap>
+                        <Typography variant="body2" noWrap>
                           {item.type === 'Lost' ? 'Date Lost' : 'Date Found'}
                         </Typography>
                         <Typography
@@ -415,8 +414,48 @@ const BlogPost = () => {
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
                           }}
+                          color="text.secondary"
                         >
                           {formatDate(item.date_lost || item.date)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Card>
+                </Grid>
+                {/* Loaction card */}
+                <Grid item xs={12} sm={6}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        boxShadow: 3,
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                      <Avatar sx={{ bgcolor: 'primary.light', mr: 1.5, flexShrink: 0, width: 32, height: 32 }}>
+                        <LocationIcon sx={{ fontSize: '1rem' }} />
+                      </Avatar>
+                      <Box sx={{ width: '100%', overflow: 'hidden' }}>
+                        <Typography variant="body2" noWrap>
+                          Location
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          fontWeight="medium"
+                          color="text.secondary"
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {item.location}
                         </Typography>
                       </Box>
                     </Box>
@@ -494,7 +533,8 @@ const BlogPost = () => {
                 variant="filled"
                 sx={{
                   borderRadius: 2,
-                  mb: 3
+                  mb: 3,
+                  backgroundColor: '#32CD32'
                 }}
               >
                 <Typography variant="subtitle1" fontWeight="medium">
@@ -565,13 +605,13 @@ const BlogPost = () => {
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap'
                         }}
-                        color="text.secondary" 
+                        color="text.secondary"
                         gutterBottom
                       >
                         {item.location}
                       </Typography>
                     </Box>
-              
+
 
                   </Box>
 
@@ -644,7 +684,7 @@ const BlogPost = () => {
 
                     <Divider sx={{ my: 2 }} />
 
-           
+
 
                     <Box sx={{ mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">
@@ -664,7 +704,7 @@ const BlogPost = () => {
                       </Typography>
                     </Box>
 
-          
+
                   </Card>
 
                   <Alert severity="info" sx={{ mb: 3 }}>
@@ -683,9 +723,12 @@ const BlogPost = () => {
                   </Typography>
                   <Chip
                     label={claimed ? "Claimed" : "Unclaimed"}
-                    color={claimed ? "success" : "warning"}
                     size="medium"
-                    sx={{ fontWeight: 'medium' }}
+                    sx={{
+                      fontWeight: 'medium',
+                      backgroundColor: claimed ? '#32CD32' : '#FF0000',
+                      color: '#fff',
+                    }}
                   />
                 </Box>
               </>
@@ -778,7 +821,7 @@ const BlogPost = () => {
                     {item.contact.phone || item.contact?.phone || "phone Number"}
                   </Box>
                 </Typography>
-                  <Typography
+                <Typography
                   variant="body2"
                   sx={{
                     display: 'flex'
