@@ -12,10 +12,8 @@ const createForm = async (req, res) => {
       });
     }
 
-    // Upload image to Cloudinary
     const result = await uploadToCloudinary(req.file.path);
-    
-    // Create a new form document
+     
     const newForm = new FormModel({
       userId: req.body.userId,
       item: req.body.item,
@@ -58,30 +56,13 @@ const createForm = async (req, res) => {
   }
 };
 
-// Get all forms
-// const getAllForms = async (req, res) => {
-//   try {
-//     const forms = await FormModel.find();
-//     res.status(200).json({
-//       message:'all Users data has been fetched',
-//       success: true,
-//       count: forms.length,
-//       data: forms
-//     });
-//     console.log("All forms data",forms);
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message
-//     });
-//   }
-// };
+
 
 const getAllForms = async (req, res) => {
   try {
     const forms = await FormModel.find()
-      .populate('userId', 'name email')        // if needed
-      .populate('claimedBy', 'name email');    // this is the key addition
+      .populate('userId', 'name email')      
+      .populate('claimedBy', 'name email');    
 
     res.status(200).json({
       message: 'All Users data has been fetched',
@@ -90,7 +71,6 @@ const getAllForms = async (req, res) => {
       data: forms
     });
 
-    console.log("All forms data", forms);
   } catch (error) {
     res.status(500).json({
       success: false,

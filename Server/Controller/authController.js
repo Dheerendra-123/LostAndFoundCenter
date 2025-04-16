@@ -1,6 +1,7 @@
 const UserModel = require("../Models/User");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 
 
 const signupController = async (req, res) => {
@@ -80,4 +81,82 @@ const loginController = async (req, res) => {
     }
 };
 
-module.exports = { signupController, loginController };
+//google auth controller
+
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const googleAuthController = async (req, res) => {
+    const { token } = req.body;
+    
+    if (!token) {
+        return res.status(400).json({ message: "Token is required", success: false });
+    }
+    
+    try {
+        // Verify Google token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        
+        const payload = ticket.getPayload();
+        
+        // Extract user information from Google payload
+        const { email, name, picture: profilePicture, sub: googleId } = payload;
+        
+        // Check if user exists
+        let user = await UserModel.findOne({ email });
+        
+        if (user) {
+            // Update existing user with Google info if not already set
+            if (!user.googleId) {
+                user.googleId = googleId;
+                user.profilePicture = user.profilePicture || profilePicture;
+                await user.save();
+            }
+        } else {
+            // Create new user
+            user = await UserModel.create({
+                name,
+                email,
+                googleId,
+                profilePicture,
+                password: null, // No password for Google users
+                authMethod: 'google'
+            });
+            
+            console.log("Google User Registered:", user);
+        }
+        
+        // Generate JWT token
+        const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        
+        // Set cookie
+        res.cookie("token", jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+        
+        // Return user data
+        res.json({
+            message: "Google authentication successful",
+            success: true,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                profilePicture: user.profilePicture
+            }
+        });
+        
+    } catch (error) {
+        console.error("Google Authentication Error:", error);
+        res.status(401).json({ message: "Google authentication failed", success: false });
+    }
+};
+
+
+module.exports = { signupController, loginController,googleAuthController };

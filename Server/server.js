@@ -16,6 +16,7 @@ app.use(cors({
 app.use(express.json());
 require('dotenv').config();
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(process.env.MANGO_URI,{dbName:"LostAndFound"}).then(()=>{
     console.log("MongoDB Connected");

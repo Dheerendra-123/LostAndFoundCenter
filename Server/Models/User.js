@@ -13,6 +13,16 @@ const userSchema=new mongoose.Schema({
     password:{
         type:String,
         required:true,
+    },
+    googleId: {
+        type: String,
+        sparse: true
+    },
+    profilePicture: String,
+    authMethod: {
+        type: String,
+        enum: ['local', 'google'],
+        default: 'local'
     }
 })
 

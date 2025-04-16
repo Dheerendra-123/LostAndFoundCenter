@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   Typography,
   Box,
@@ -30,6 +29,8 @@ import {
   BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
 import { handleError, handleSuccess } from '../Utils/tostify';
+import GradeIcon from '@mui/icons-material/Grade';
+import api from '../../api/api';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -74,43 +75,85 @@ const BlogPost = () => {
     setClaimDialogOpen(false);
   };
 
-  const handleConfirmClaim = async () => {
-    try {
-      setClaiming(true);
-      const user = JSON.parse(localStorage.getItem('user'));
-      const userId = user?._id;
+  // const handleConfirmClaim = async () => {
+  //   try {
+  //     setClaiming(true);
+  //     const user = JSON.parse(localStorage.getItem('user'));
+  //     const userId = user?._id;
 
-      if (!userId) {
-        handleError("User not logged in or ID missing.");
-        setClaiming(false);
-        setClaimDialogOpen(false);
-        return;
-      }
+  //     if (!userId) {
+  //       handleError("User not logged in or ID missing.");
+  //       setClaiming(false);
+  //       setClaimDialogOpen(false);
+  //       return;
+  //     }
 
-      const res = await axios.patch(
-        `http://localhost:8000/api/form/claim/${id}`,
-        {
-          type: 'claim',
-          reportedBy: userId
-        },
-        { withCredentials: true }
-      );
+  //     const res = await api.patch(
+  //       `/api/form/claim/${id}`,
+  //       {
+  //         type: 'claim',
+  //         reportedBy: userId
+  //       },
+  //     );
 
-      handleSuccess(res.data.message || "Item claimed successfully!");
+  //     handleSuccess(res.data.message || "Item claimed successfully!");
 
+  //     setClaiming(false);
+  //     setClaimDialogOpen(false);
+  //     navigate('/');
+
+  //   } catch (err) {
+  //     console.error(err);
+  //     handleError(
+  //       err.response?.data?.message || "Failed to claim item. Please try again."
+  //     );
+  //     setClaiming(false);
+  //     setClaimDialogOpen(false);
+  //   }
+  // };
+
+  // Updated handle confirm claim function for BlogPost.js
+const handleConfirmClaim = async () => {
+  try {
+    setClaiming(true);
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userId = user?._id;
+
+    if (!userId) {
+      handleError("User not logged in or ID missing.");
       setClaiming(false);
       setClaimDialogOpen(false);
-      navigate('/');
-
-    } catch (err) {
-      console.error(err);
-      handleError(
-        err.response?.data?.message || "Failed to claim item. Please try again."
-      );
-      setClaiming(false);
-      setClaimDialogOpen(false);
+      return;
     }
-  };
+
+    const res = await api.patch(
+      `/api/form/claim/${id}`,
+      {
+        type: 'claim',
+        reportedBy: userId
+      },
+    );
+
+    handleSuccess("Item claimed successfully! The original reporter has been notified via email.");
+    
+    setClaiming(false);
+    setClaimDialogOpen(false);
+    
+    setClaimed(true);
+    
+    fetchItemDetails();
+    
+    // Navigate to homepage or stay on page based on your UX preference
+    navigate('/');
+  } catch (err) {
+    console.error(err);
+    handleError(
+      err.response?.data?.message || "Failed to claim item. Please try again."
+    );
+    setClaiming(false);
+    setClaimDialogOpen(false);
+  }
+};
 
 
   if (loading) {
@@ -461,6 +504,45 @@ const BlogPost = () => {
                     </Box>
                   </Card>
                 </Grid>
+                {/* reward card */}
+                {item.type==='Lost'&&(<Grid item xs={12} sm={6}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        boxShadow: 3,
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                      <Avatar sx={{ bgcolor: 'primary.light', mr: 1.5, flexShrink: 0, width: 32, height: 32 }}>
+                        <GradeIcon sx={{ fontSize: '1rem' }} />
+                      </Avatar>
+                      <Box sx={{ width: '100%', overflow: 'hidden' }}>
+                        <Typography variant="body2" noWrap>
+                          Reward
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          fontWeight="medium"
+                          color="text.secondary"
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          ₹{item.reward}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Card>
+                </Grid>)}
               </Grid>
 
               {/* Actions */}

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { FcGoogle } from "react-icons/fc";
 import {
@@ -23,6 +22,7 @@ import {
   Google as GoogleIcon
 } from '@mui/icons-material';
 import { handleError, handleSuccess } from '../Utils/tostify';
+import api from '../../api/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -47,10 +47,9 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const response = await axios.post(
-        'http://localhost:8000/api/auth/login',
-        formData,
-        { withCredentials: true }
+      const response = await api.post(
+        '/api/auth/login',
+        formData
       );
       
       if (response.data.success) {

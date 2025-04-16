@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -29,6 +28,7 @@ import lostAndFoundInmg from '../assets/lost-and-found.png';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Loading from '../Utils/Loading';
 import { handleError } from '../Utils/tostify';
+import api from '../../api/api';
 
 const Display = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -60,7 +60,7 @@ const Display = () => {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:8000/api/forms/all', { withCredentials: true });
+      const response = await api.get('/api/forms/all');
   
       console.log("API Response:", response.data);
   
@@ -78,7 +78,6 @@ const Display = () => {
       console.error("Error fetching items:", err);
   
       if (err.response?.status === 401) {
-
         handleError("Session expired. You will be redirected to login page.");
         handleSessionExpired();
       } else {
@@ -108,15 +107,18 @@ const Display = () => {
     let filtered = [...items];
 
     switch (tabValue) {
-      case 0: 
+      case 0: // Found Items tab
         filtered = filtered.filter(item => {
-          const isFound = !item.type || 
-                          item.type === 'Found' || 
+          // Check if type is explicitly 'Found'
+          const isFound = (item.type === 'Found' || 
                           item.type === 'found' || 
                           item.formType === 'Found' || 
-                          item.formType === 'found';
+                          item.formType === 'found');
           
           const isNotClaimed = !item.claimStatus && !item.claimedBy;
+          
+          // Debug logging to see what's happening with each item
+          console.log(`Item ${item.item}, type: ${item.type}, isFound: ${isFound}`);
           
           return isFound && isNotClaimed;
         });
@@ -124,12 +126,15 @@ const Display = () => {
       
       case 1: // Lost Items tab
         filtered = filtered.filter(item => {
-          const isLost = item.type === 'Lost' || 
+          const isLost = (item.type === 'Lost' || 
                          item.type === 'lost' || 
                          item.formType === 'Lost' || 
-                         item.formType === 'lost';
+                         item.formType === 'lost');
           
           const isNotClaimed = !item.claimStatus && !item.claimedBy;
+          
+          // Debug logging
+          console.log(`Item ${item.item}, type: ${item.type}, isLost: ${isLost}`);
           
           return isLost && isNotClaimed;
         });
@@ -164,7 +169,8 @@ const Display = () => {
 
   const filteredItems = getFilteredItems();
 
-  const itemsToDisplay = filteredItems.length === 0 && tabValue === 0 ? items : filteredItems;
+  // Modified to ensure we're only showing the properly filtered items
+  const itemsToDisplay = filteredItems;
 
   if (loading) return <Loading />;
   if (error) {
@@ -211,7 +217,7 @@ const Display = () => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
+    <Box sx={{ flexGrow: 1, minHeight: '100vh' }} mb={3}>
       {/* Session Expired Snackbar */}
       <Snackbar 
         open={sessionExpired} 

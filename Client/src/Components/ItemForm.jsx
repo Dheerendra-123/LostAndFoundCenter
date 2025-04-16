@@ -31,6 +31,7 @@ import { departments, itemCategories, locations } from "../Utils/formData";
 import useIsMobile from "./hooks/isMobile";
 import Action from "../Utils/Action";
 import CardLogo from '../assets/lost-and-found.png';
+import api from "../../api/api";
 
 const LostItemForm = () => {
   const [formData, setFormData] = useState({
@@ -219,11 +220,10 @@ const LostItemForm = () => {
       console.log("Sending request to server...");
       
       // Submit the form
-      const response = await axios.post("http://localhost:8000/api/forms/create", formDataObj, {
+      const response = await api.post("api/forms/create", formDataObj, {
         headers: {
           "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true
+        }
       });
       
       console.log("Server response:", response.data);

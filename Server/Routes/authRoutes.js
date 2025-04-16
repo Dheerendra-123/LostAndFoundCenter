@@ -1,5 +1,5 @@
 const express = require('express');
-const { signupController, loginController } = require('../Controller/authController');
+const { signupController, loginController,googleAuthController} = require('../Controller/authController');
 const { signupValidation, loginValidation } = require('../Middlewares/validateData');
 
 const router = express.Router();
@@ -8,5 +8,7 @@ const router = express.Router();
 router.post('/signup',signupValidation,signupController);
 
 router.post('/login',loginValidation,loginController);
+
+router.post('/google', googleAuthController);
 
 module.exports = router; 

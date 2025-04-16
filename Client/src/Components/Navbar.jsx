@@ -4,38 +4,35 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
-import PersonIcon from '@mui/icons-material/Person';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import userName from './hooks/userName';
-import { Badge, Button, Container } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Button, Container } from '@mui/material';
+
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
-  
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   const handleLogout = () => {
     console.log("Logging out");
     localStorage.removeItem('user');
@@ -48,12 +45,16 @@ const Navbar = () => {
 
   const username = userName();
   const userInitialLetter = username.charAt(0).toUpperCase();
-  
+  const handleStatisticsClick = () => {
+    navigate('/statics');
+  };
+
+
   return (
-    <AppBar 
-      position="sticky" 
+    <AppBar
+      position="sticky"
       elevation={0}
-      sx={{ 
+      sx={{
         background: 'linear-gradient(90deg, #2c67f2 0%, #4e85f4 100%)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
@@ -96,24 +97,43 @@ const Navbar = () => {
             </Typography>
           </Box>
 
+
           {/* Right side items */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Notifications */}
-            <Tooltip title="Notifications">
-              <IconButton color="inherit" size="large">
-                <Badge badgeContent={3} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
+            {/* Statistics link */}
+          
+            <Button
+      onClick={handleStatisticsClick}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        fontWeight: 500,
+        color: 'white',
+        '&:hover': {
+          textDecoration: 'none',
+          backgroundColor: 'transparent',
+        },
+        cursor: 'pointer',
+      }}
+    >
+      <EqualizerIcon sx={{ mr: 0.5, fontSize: 20 }} />
+      <Typography
+        variant="body1"
+        sx={{ display: { xs: 'none', sm: 'block' } }}
+      >
+        Statistics
+      </Typography>
+    </Button>
+
+
 
             {/* User profile */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
               {!isMobile && (
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    mr: 1.5, 
+                <Typography
+                  variant="body1"
+                  sx={{
+                    mr: 1.5,
                     fontWeight: 500,
                     display: { xs: 'none', sm: 'block' }
                   }}
@@ -121,7 +141,7 @@ const Navbar = () => {
                   {username}
                 </Typography>
               )}
-              
+
               <Tooltip title="Account settings">
                 <IconButton
                   onClick={handleMenu}
@@ -131,10 +151,10 @@ const Navbar = () => {
                   aria-controls="menu-appbar"
                   aria-haspopup="true"
                 >
-                  <Avatar 
-                    sx={{ 
-                      width: 40, 
-                      height: 40, 
+                  <Avatar
+                    sx={{
+                      width: 40,
+                      height: 40,
                       bgcolor: 'primary.dark',
                       border: '2px solid white',
                       fontSize: '1rem',
@@ -147,7 +167,8 @@ const Navbar = () => {
               </Tooltip>
             </Box>
           </Box>
-          
+
+
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
@@ -185,19 +206,7 @@ const Navbar = () => {
               <Typography variant="body2" color="text.secondary">User Account</Typography>
             </Box>
             <Divider sx={{ my: 1 }} />
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <PersonIcon fontSize="small" color="primary" />
-              </ListItemIcon>
-              <Typography>My Profile</Typography>
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <EqualizerIcon fontSize="small" color="primary" />
-              </ListItemIcon>
-              <Typography>Statistics</Typography>
-            </MenuItem>
-            <Divider sx={{ my: 1 }} />
+
             <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" color="error" />
