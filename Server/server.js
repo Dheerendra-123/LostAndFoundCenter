@@ -10,7 +10,13 @@ const PORT = 8000;
 
 app.use(cors({
     origin: process.env.FRONTEND_URL, 
-    credentials: true               // allow cookies
+    credentials: true   ,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]            // allow cookies
+  }));
+
+  app.options("*", cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
   }));
 
 app.use(express.json());
