@@ -15,10 +15,16 @@ import {
   useTheme,
   useMediaQuery,
   Avatar,
+  Card,
+  IconButton,
+  Collapse
 } from '@mui/material';
 import {
   Search as SearchIcon,
   Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 
 import ItemCard from './ItemCard';
@@ -37,19 +43,45 @@ const Display = () => {
   const [enableSearch, setEnableSearch] = useState(false);
   const [debugInfo, setDebugInfo] = useState(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [visibleItems, setVisibleItems] = useState(8); // Initial number of items to show (2 rows of 4)
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
+
+  // Category counts
+  const [categoryCounts, setCategoryCounts] = useState({
+    found: 0,
+    lost: 0,
+    claimed: 0
+  });
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    setExpanded(false);
+    setVisibleItems(8);
+  };
+
+  const handleExpandClick = () => {
+    if (expanded) {
+      setVisibleItems(8);
+      setExpanded(false);
+      // Scroll back to top of items section
+      const itemsSection = document.getElementById("items-section");
+      if (itemsSection) {
+        itemsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      setVisibleItems(itemsToDisplay.length);
+      setExpanded(true);
+    }
   };
 
   const handleSessionExpired = () => {
     if (!sessionExpired) {
       setSessionExpired(true);
       localStorage.removeItem("user");
-
       handleError("Session expired. Redirecting to login...");
 
       setTimeout(() => {
@@ -62,7 +94,6 @@ const Display = () => {
     setLoading(true);
     try {
       const response = await api.get('/api/forms/all');
-      // console.log("API Response:", response.data);
 
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setItems(response.data.data);
@@ -71,7 +102,36 @@ const Display = () => {
           setDebugInfo(response.data.data[0]);
         }
 
-        // console.log("Items fetched successfully.");
+        // Calculate category counts
+        const foundCount = response.data.data.filter(item => {
+          const isFound = (item.type === 'Found' || 
+                           item.type === 'found' || 
+                           item.formType === 'Found' || 
+                           item.formType === 'found');
+          const isNotClaimed = !item.claimStatus && !item.claimedBy;
+          return isFound && isNotClaimed;
+        }).length;
+
+        const lostCount = response.data.data.filter(item => {
+          const isLost = (item.type === 'Lost' || 
+                          item.type === 'lost' || 
+                          item.formType === 'Lost' || 
+                          item.formType === 'lost');
+          const isNotClaimed = !item.claimStatus && !item.claimedBy;
+          return isLost && isNotClaimed;
+        }).length;
+
+        const claimedCount = response.data.data.filter(item => 
+          item.claimStatus === true || 
+          item.status === 'claimed' || 
+          item.claimedBy
+        ).length;
+
+        setCategoryCounts({
+          found: foundCount,
+          lost: lostCount,
+          claimed: claimedCount
+        });
       } else {
         throw new Error('Invalid response format');
       }
@@ -88,8 +148,6 @@ const Display = () => {
     }
   };
 
-
-
   useEffect(() => {
     fetchItems();
   }, []);
@@ -104,8 +162,6 @@ const Display = () => {
   };
 
   const getFilteredItems = () => {
-    // console.log("Current items state:", items);
-
     let filtered = [...items];
 
     switch (tabValue) {
@@ -119,9 +175,6 @@ const Display = () => {
 
           const isNotClaimed = !item.claimStatus && !item.claimedBy;
 
-
-          // console.log(`Item ${item.item}, type: ${item.type}, isFound: ${isFound}`);
-
           return isFound && isNotClaimed;
         });
         break;
@@ -134,9 +187,6 @@ const Display = () => {
             item.formType === 'lost');
 
           const isNotClaimed = !item.claimStatus && !item.claimedBy;
-
-
-          // console.log(`Item ${item.item}, type: ${item.type}, isLost: ${isLost}`);
 
           return isLost && isNotClaimed;
         });
@@ -154,8 +204,6 @@ const Display = () => {
         break;
     }
 
-    // console.log(`Filtered items for tab ${tabValue}:`, filtered);
-
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(item =>
@@ -171,6 +219,24 @@ const Display = () => {
 
   const filteredItems = getFilteredItems();
   const itemsToDisplay = filteredItems;
+  const showMoreButton = itemsToDisplay.length > visibleItems;
+
+  // Get the total count for the current category
+  const getCurrentCategoryTotal = () => {
+    switch (tabValue) {
+      case 0: return categoryCounts.found;
+      case 1: return categoryCounts.lost;
+      case 2: return categoryCounts.claimed;
+      default: return 0;
+    }
+  };
+
+  // Calculate items per row based on screen size
+  const getItemsPerRow = () => {
+    if (isMobile) return 1;
+    if (isTablet) return 2;
+    return 4;
+  };
 
   if (loading) return <Loading />;
   if (error) {
@@ -218,20 +284,6 @@ const Display = () => {
 
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh' }} mb={3}>
-
-
-      {/* Debugging Info */}
-      {debugInfo && (
-        <Container maxWidth="lg" sx={{ mb: 2 }}>
-          <Paper sx={{ p: 2, display: 'none' }}>
-            <Typography variant="h6">Debug Info (First Item)</Typography>
-            <Typography variant="body2" component="pre">
-              {JSON.stringify(debugInfo, null, 2)}
-            </Typography>
-          </Paper>
-        </Container>
-      )}
-
       {/* Hero Section */}
       <Box
         sx={{
@@ -280,7 +332,6 @@ const Display = () => {
                           }
                         }, 100);
                       }
-
                       return newValue;
                     });
                   }}
@@ -352,13 +403,13 @@ const Display = () => {
             variant={isMobile ? "fullWidth" : "standard"}
             centered={!isMobile}
           >
-            <Tab label="Found Items" />
-            <Tab label="Lost Items" />
-            <Tab label="Claimed Items" />
+            <Tab label={`Found Items (${categoryCounts.found})`} />
+            <Tab label={`Lost Items (${categoryCounts.lost})`} />
+            <Tab label={`Claimed Items (${categoryCounts.claimed})`} />
           </Tabs>
         </Paper>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }} id="items-section">
           <Typography variant="h5" component="h2" fontWeight={600}>
             {tabValue === 0 ? 'Found Items' :
               tabValue === 1 ? 'Lost Items' : 'Claimed Items'}
@@ -367,49 +418,79 @@ const Display = () => {
             color="primary"
             onClick={fetchItems}
             variant='outlined'
+            startIcon={<RefreshIcon />}
           >
-            Refresh Items
+            Refresh
           </Button>
         </Box>
 
-        {/* Items count info */}
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
-          Showing {itemsToDisplay.length} of {items.length} total items
-        </Typography>
+        {/* Items count info - In a highlighted card for better visibility */}
+        <Card sx={{ mb: 3, p: 2, backgroundColor: 'rgba(25, 118, 210, 0.08)', borderRadius: 2 }}>
+          <Typography variant="subtitle1" color="text.secondary" sx={{ fontWeight: 500 }}>
+            Showing {Math.min(visibleItems, itemsToDisplay.length)} of {getCurrentCategoryTotal()} total {tabValue === 0 ? 'found' : tabValue === 1 ? 'lost' : 'claimed'} items
+          </Typography>
+        </Card>
 
         {itemsToDisplay.length > 0 ? (
-          <Grid container spacing={4} justifyContent="flex-start">
-            {itemsToDisplay.map((item) => (
-              <Grid item key={item._id} xs={12} sm={6} md={3}>
-                <ItemCard
-                  item={{
-                    id: item._id,
-                    item: item.item || "Unknown Item",
-                    category: item.category || "Uncategorized",
-                    type: item.type || item.formType || "Type not specified",
-                    location: item.location || "Unknown Location",
-                    date_lost: item.date_lost || item.date || new Date().toISOString().split('T')[0],
-                    date: item.date || item.date_lost || new Date().toISOString().split('T')[0],
-                    description: item.description || "No description provided",
-                    status: item.status || "found",
-                    image: item.image,
-                    src: item.image?.url || "https://via.placeholder.com/150?text=No+Image",
-                    contact: {
-                      name: item.contact_name,
-                      email: item.contact_email,
-                      phone: item.contact_phone
-                    },
-                    reward: item.reward_offer,
-                    department: item.department,
-                    claimStatus: item.claimStatus || (item.status === 'claimed'),
-                    claimedBy: item.claimedBy,
-                    reportedBy: item.reportedBy || item.userId
+          <>
+            <Grid container spacing={4} justifyContent="flex-start">
+              {itemsToDisplay.slice(0, visibleItems).map((item) => (
+                <Grid item key={item._id} xs={12} sm={6} md={3}>
+                  <ItemCard
+                    item={{
+                      id: item._id,
+                      item: item.item || "Unknown Item",
+                      category: item.category || "Uncategorized",
+                      type: item.type || item.formType || "Type not specified",
+                      location: item.location || "Unknown Location",
+                      date_lost: item.date_lost || item.date || new Date().toISOString().split('T')[0],
+                      date: item.date || item.date_lost || new Date().toISOString().split('T')[0],
+                      description: item.description || "No description provided",
+                      status: item.status || "found",
+                      image: item.image,
+                      src: item.image?.url || "https://via.placeholder.com/150?text=No+Image",
+                      contact: {
+                        name: item.contact_name,
+                        email: item.contact_email,
+                        phone: item.contact_phone
+                      },
+                      reward: item.reward_offer,
+                      department: item.department,
+                      claimStatus: item.claimStatus || (item.status === 'claimed'),
+                      claimedBy: item.claimedBy,
+                      reportedBy: item.reportedBy || item.userId
+                    }}
+                    onClaimed={() => handleItemClaimed(item._id)}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            
+            {/* Show more/less button */}
+            {itemsToDisplay.length > 8 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Button
+                  onClick={handleExpandClick}
+                  variant="outlined"
+                  color="primary"
+                  endIcon={expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  sx={{ 
+                    borderRadius: 4,
+                    px: 3,
+                    py: 1,
+                    boxShadow: 1,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      boxShadow: 3,
+                      transform: 'translateY(-2px)'
+                    }
                   }}
-                  onClaimed={() => handleItemClaimed(item._id)}
-                />
-              </Grid>
-            ))}
-          </Grid>
+                >
+                  {expanded ? "Show Less" : `Show More (${itemsToDisplay.length - visibleItems} more)`}
+                </Button>
+              </Box>
+            )}
+          </>
         ) : (
           <Box sx={{ py: 4, textAlign: 'center' }}>
             <Typography variant="h6" color="text.secondary">
