@@ -1,4 +1,4 @@
- import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -15,8 +15,6 @@ import {
   useTheme,
   useMediaQuery,
   Avatar,
-  Snackbar,
-  Alert
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -48,111 +46,115 @@ const Display = () => {
   };
 
   const handleSessionExpired = () => {
-    setSessionExpired(true);
-    
-    localStorage.removeItem("user"); 
+    if (!sessionExpired) {
+      setSessionExpired(true);
+      localStorage.removeItem("user");
 
-    setTimeout(() => {
-      navigate('/login');
-    }, 3000);
+      handleError("Session expired. Redirecting to login...");
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+    }
   };
 
   const fetchItems = async () => {
     setLoading(true);
     try {
       const response = await api.get('/api/forms/all');
-  
-      console.log("API Response:", response.data);
-  
+      // console.log("API Response:", response.data);
+
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setItems(response.data.data);
-  
+
         if (response.data.data.length > 0) {
           setDebugInfo(response.data.data[0]);
         }
+
+        // console.log("Items fetched successfully.");
       } else {
         throw new Error('Invalid response format');
       }
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching items:", err);
-  
+
       if (err.response?.status === 401) {
-        handleError("Session expired. You will be redirected to login page.");
         handleSessionExpired();
       } else {
-        setError(err.response?.data?.message || err.message);
+        handleError(err.response?.data?.message || err.message);
       }
-  
+    } finally {
       setLoading(false);
     }
   };
-  
+
+
+
   useEffect(() => {
     fetchItems();
   }, []);
 
   // Handle item claimed event
   const handleItemClaimed = (itemId) => {
-    setItems(prevItems => prevItems.map(item => 
+    setItems(prevItems => prevItems.map(item =>
       item._id === itemId ? { ...item, claimStatus: true } : item
     ));
-    
+
     fetchItems();
   };
 
   const getFilteredItems = () => {
-    console.log("Current items state:", items);
-    
+    // console.log("Current items state:", items);
+
     let filtered = [...items];
 
     switch (tabValue) {
       case 0: // Found Items tab
         filtered = filtered.filter(item => {
           // Check if type is explicitly 'Found'
-          const isFound = (item.type === 'Found' || 
-                          item.type === 'found' || 
-                          item.formType === 'Found' || 
-                          item.formType === 'found');
-          
+          const isFound = (item.type === 'Found' ||
+            item.type === 'found' ||
+            item.formType === 'Found' ||
+            item.formType === 'found');
+
           const isNotClaimed = !item.claimStatus && !item.claimedBy;
-          
-          // Debug logging to see what's happening with each item
-          console.log(`Item ${item.item}, type: ${item.type}, isFound: ${isFound}`);
-          
+
+
+          // console.log(`Item ${item.item}, type: ${item.type}, isFound: ${isFound}`);
+
           return isFound && isNotClaimed;
         });
         break;
-      
+
       case 1: // Lost Items tab
         filtered = filtered.filter(item => {
-          const isLost = (item.type === 'Lost' || 
-                         item.type === 'lost' || 
-                         item.formType === 'Lost' || 
-                         item.formType === 'lost');
-          
+          const isLost = (item.type === 'Lost' ||
+            item.type === 'lost' ||
+            item.formType === 'Lost' ||
+            item.formType === 'lost');
+
           const isNotClaimed = !item.claimStatus && !item.claimedBy;
-          
-          // Debug logging
-          console.log(`Item ${item.item}, type: ${item.type}, isLost: ${isLost}`);
-          
+
+
+          // console.log(`Item ${item.item}, type: ${item.type}, isLost: ${isLost}`);
+
           return isLost && isNotClaimed;
         });
         break;
-      
+
       case 2: // Claimed Items tab
-        filtered = filtered.filter(item => 
-          item.claimStatus === true || 
-          item.status === 'claimed' || 
+        filtered = filtered.filter(item =>
+          item.claimStatus === true ||
+          item.status === 'claimed' ||
           item.claimedBy
         );
         break;
-      
+
       default:
         break;
     }
 
-    console.log(`Filtered items for tab ${tabValue}:`, filtered);
+    // console.log(`Filtered items for tab ${tabValue}:`, filtered);
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -168,8 +170,6 @@ const Display = () => {
   };
 
   const filteredItems = getFilteredItems();
-
-  // Modified to ensure we're only showing the properly filtered items
   const itemsToDisplay = filteredItems;
 
   if (loading) return <Loading />;
@@ -180,7 +180,7 @@ const Display = () => {
           Error Loading Data
         </Typography>
         <Typography variant="body1">
-         Please try again later.
+          Please try again later.
         </Typography>
         <Button
           variant="contained"
@@ -218,20 +218,8 @@ const Display = () => {
 
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh' }} mb={3}>
-      {/* Session Expired Snackbar */}
-      <Snackbar 
-        open={sessionExpired} 
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert 
-          severity="warning" 
-          variant="filled"
-          sx={{ width: '100%', boxShadow: 4 }}
-        >
-          Your session has expired. Redirecting to login page...
-        </Alert>
-      </Snackbar>
-      
+
+
       {/* Debugging Info */}
       {debugInfo && (
         <Container maxWidth="lg" sx={{ mb: 2 }}>
@@ -282,24 +270,31 @@ const Display = () => {
                   startIcon={<SearchIcon sx={{ color: 'rgb(156, 39, 176)' }} />}
                   sx={{ fontWeight: 600, color: 'white' }}
                   onClick={() => {
-                    setEnableSearch(true);
-                    setTimeout(() => {
-                      const el = document.getElementById("search-box");
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth' });
+                    setEnableSearch(prev => {
+                      const newValue = !prev;
+                      if (newValue) {
+                        setTimeout(() => {
+                          const el = document.getElementById("search-box");
+                          if (el) {
+                            el.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }, 100);
                       }
-                    }, 100);
+
+                      return newValue;
+                    });
                   }}
                 >
                   Search Items
                 </Button>
+
                 <Button
                   component={RouterLink}
                   to="/reportForm"
                   variant="outlined"
                   color="secondary"
                   size="large"
-                  startIcon={<AddIcon  sx={{ color: 'rgb(156, 39, 176)' }}/>}
+                  startIcon={<AddIcon sx={{ color: 'rgb(156, 39, 176)' }} />}
                   sx={{ fontWeight: 600, color: 'white' }}
                 >
                   Report Lost / Found Item
@@ -368,9 +363,10 @@ const Display = () => {
             {tabValue === 0 ? 'Found Items' :
               tabValue === 1 ? 'Lost Items' : 'Claimed Items'}
           </Typography>
-          <Button 
-            color="primary" 
+          <Button
+            color="primary"
             onClick={fetchItems}
+            variant='outlined'
           >
             Refresh Items
           </Button>
@@ -385,7 +381,7 @@ const Display = () => {
           <Grid container spacing={4} justifyContent="flex-start">
             {itemsToDisplay.map((item) => (
               <Grid item key={item._id} xs={12} sm={6} md={3}>
-                <ItemCard 
+                <ItemCard
                   item={{
                     id: item._id,
                     item: item.item || "Unknown Item",

@@ -20,7 +20,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 
 
 const ItemCard = ({ item, onClaimed }) => {
-    console.log("CliamedBy", item.claimedBy);
+    // console.log("CliamedBy", item.claimedBy);
     const [claimed, setClaimed] = useState(item.claimStatus || !!item.claimedBy);
     const navigate = useNavigate();
 

@@ -55,7 +55,6 @@ const formSchema = mongoose.Schema({
   },
   reward_offer: {
     type: String,
-    required: true,
   },
   department: {
     type: String,

@@ -32,6 +32,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import api from '../../api/api';
+import useIsMobile from './hooks/isMobile';
+import Action from '../Utils/Action';
 
 const Statistics = () => {
     const [loading, setLoading] = useState(true);
@@ -39,6 +41,7 @@ const Statistics = () => {
     const [data, setData] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const theme = useTheme();
+    const isMobile = useIsMobile();
 
     // Stats derived from data
     const [stats, setStats] = useState({
@@ -210,14 +213,20 @@ const Statistics = () => {
         }));
     };
 
+  
+
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
     const STATUS_COLORS = ['#4CAF50', '#F44336'];
 
-    const CustomTooltip = ({ active, payload, label }) => {
+     // Replace your existing CustomTooltip with this improved version
+     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
                 <Paper sx={{ padding: 1, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-                    <Typography variant="body2">{`${label} : ${payload[0].value}`}</Typography>
+                    <Typography variant="body2">{`${payload[0].name} : ${payload[0].value}`}</Typography>
+                    {payload[0].payload && payload[0].payload.percent && (
+                        <Typography variant="body2">{`(${(payload[0].payload.percent * 100).toFixed(0)}%)`}</Typography>
+                    )}
                 </Paper>
             );
         }
@@ -307,36 +316,62 @@ const Statistics = () => {
 
     return (
         <Container maxWidth={false} sx={{ py: 4, width: '90%', mx: 'auto' }}>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box>
-                    <Typography variant="h4" component="h1" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <EqualizerIcon sx={{ mr: 2, fontSize: 35, color: 'primary.main' }} />
-                        Lost & Found Statistics
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Overview of all lost, found, and claimed items in the system
-                    </Typography>
-                </Box>
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<RefreshIcon />}
-                    onClick={fetchStatisticsData}
-                    disabled={refreshing}
-                >
-                    {refreshing ? 'Refreshing...' : 'Refresh Data'}
-                </Button>
+            <Box mb={5}>
+            <Action/>
             </Box>
+           
+            <Box sx={{ mb: 4 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'space-between',
+                        alignItems: isMobile ? 'flex-start' : 'center',
+                        gap: 2,
+                    }}
+                >
+                    <Box>
+                        <Typography
+                            variant={isMobile ? 'h6' : 'h4'}
+                            component="h1"
+                            fontWeight="bold"
+                            sx={{ display: 'flex', alignItems: 'center' }}
+                        >
+                            <EqualizerIcon
+                                sx={{ mr: 2, fontSize: isMobile ? 25 : 35, color: 'primary.main' }}
+                            />
+                            Lost & Found Statistics
+                        </Typography>
+                        <Typography variant={isMobile ? 'body2' : 'body1'} color="text.secondary" >
+                            Overview of all lost, found, and claimed items in the system
+                        </Typography>
+                    </Box>
+
+                    <Button
+                        variant="outlined"
+                        size={isMobile ? 'small' : 'medium'}
+                        color="primary"
+                        startIcon={<RefreshIcon />}
+                        onClick={fetchStatisticsData}
+                        disabled={refreshing}
+                        fullWidth={isMobile}
+
+                    >
+                        {refreshing ? 'Refreshing...' : 'Refresh Data'}
+                    </Button>
+                </Box>
+            </Box>
+
             <Divider sx={{ mb: 4 }} />
 
             {/* Summary Cards - Spread to use more width */}
             <Typography variant="h6" sx={{ mb: 2 }}>Key Metrics</Typography>
-            <Grid container spacing={21} sx={{ mb: 5 }}>
+            <Grid container spacing={!isMobile ? 21 : 2} sx={{ mb: 5 }} margin='auto'>
                 <Grid item xs={12} sm={6} md={3}>
                     <Card
                         sx={{
                             height: '100%',
-                            width: '200px',
+                            width: isMobile ? '160px' : '200px',
                             display: 'flex',
                             flexDirection: 'column',
                             background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
@@ -373,7 +408,7 @@ const Statistics = () => {
                     <Card
                         sx={{
                             height: '100%',
-                            width: '200px',
+                            width: isMobile ? '160px' : '200px',
                             display: 'flex',
                             flexDirection: 'column',
                             background: 'linear-gradient(45deg, #FF5252 30%, #FF8A80 90%)',
@@ -410,7 +445,7 @@ const Statistics = () => {
                     <Card
                         sx={{
                             height: '100%',
-                            width: '200px',
+                            width: isMobile ? '160px' : '200px',
                             display: 'flex',
                             flexDirection: 'column',
                             background: 'linear-gradient(45deg, #69F0AE 30%, #B9F6CA 90%)',
@@ -447,7 +482,7 @@ const Statistics = () => {
                     <Card
                         sx={{
                             height: '100%',
-                            width: '200px',
+                            width: isMobile ? '160px' : '200px',
                             display: 'flex',
                             flexDirection: 'column',
                             background: 'linear-gradient(45deg, #FFC107 30%, #FFECB3 90%)',
@@ -483,7 +518,7 @@ const Statistics = () => {
 
             {/* Charts - Improved layout with matching heights */}
             <Typography variant="h6" sx={{ mb: 2 }}>Detailed Analytics</Typography>
-            <Grid container spacing={5}>
+            <Grid container spacing={isMobile?5:9}>
                 {/* Bar Chart */}
                 <Grid item xs={12} lg={8}>
                     <Paper
@@ -491,7 +526,7 @@ const Statistics = () => {
                         sx={{
                             p: 3,
                             height: '500px',
-                            width: '400px',
+                            width: isMobile ? "350px" : '400px',
                             borderRadius: 2,
                             backgroundColor: theme.palette.background.paper,
                             transition: 'box-shadow 0.3s',
@@ -532,15 +567,15 @@ const Statistics = () => {
 
                 {/* Pie Charts */}
                 <Grid item xs={12} lg={4}>
-                    <Grid container spacing={4} sx={{ height: '500px' }}>
+                    <Grid container spacing={4} >
                         {/* Top Pie Chart */}
-                        <Grid item xs={12} sx={{ height: '50%' }}>
+                        <Grid item xs={12} >
                             <Paper
                                 elevation={3}
                                 sx={{
                                     p: 3,
                                     height: '500px',
-                                    width: '420px',
+                                    width: isMobile ? "350px" : '400px',
                                     borderRadius: 2,
                                     backgroundColor: theme.palette.background.paper,
                                     transition: 'box-shadow 0.3s',
@@ -595,6 +630,12 @@ const Statistics = () => {
                                                     outerRadius="60%"
                                                     fill="#8884d8"
                                                     dataKey="value"
+                                                    activeShape={{ stroke: 'none', strokeWidth: 0 }}
+                                                    activeIndex={[]} // Empty array means no active segments
+                                                    isAnimationActive={true}
+                                                    onClick={null} // Disables click behavior
+                                                    // Override all styles that might cause borders
+                                                    style={{ outline: 'none' }}
                                                 >
                                                     {stats.categoryData.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -610,13 +651,13 @@ const Statistics = () => {
                         </Grid>
 
                         {/* Bottom Pie Chart */}
-                        <Grid item xs={12} sx={{ height: '50%' }}>
+                        <Grid item xs={12} >
                             <Paper
                                 elevation={3}
                                 sx={{
                                     p: 3,
                                     height: '500px',
-                                    width: '420px',
+                                    width: isMobile ? "350px" : '400px',
                                     borderRadius: 2,
                                     backgroundColor: theme.palette.background.paper,
                                     transition: 'box-shadow 0.3s',
@@ -656,6 +697,12 @@ const Statistics = () => {
                                                     outerRadius="60%"
                                                     fill="#8884d8"
                                                     dataKey="value"
+                                                    activeShape={{ stroke: 'none', strokeWidth: 0 }}
+                                                    activeIndex={[]} // Empty array means no active segments
+                                                    isAnimationActive={true}
+                                                    onClick={null} // Disables click behavior
+                                                    // Override all styles that might cause borders
+                                                    style={{ outline: 'none' }}
                                                 >
                                                     {stats.statusData.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />

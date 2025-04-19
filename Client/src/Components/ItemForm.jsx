@@ -32,6 +32,8 @@ import useIsMobile from "./hooks/isMobile";
 import Action from "../Utils/Action";
 import CardLogo from '../assets/lost-and-found.png';
 import api from "../../api/api";
+import { handleError } from "../Utils/tostify";
+import { useNavigate } from "react-router-dom";
 
 const LostItemForm = () => {
   const [formData, setFormData] = useState({
@@ -56,9 +58,10 @@ const LostItemForm = () => {
     message: '',
     severity: 'success'
   });
-  
+
   const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
+  const navigate=useNavigate();
 
 
   useEffect(() => {
@@ -85,12 +88,12 @@ const LostItemForm = () => {
   };
 
   const handleFileSelect = (files) => {
-    console.log("Files selected:", files);
+    // console.log("Files selected:", files);
     const selected = Array.from(files);
-    console.log("Array from files:", selected);
-    
+    // console.log("Array from files:", selected);
+
     if (selected.length > 1) {
-      console.log("Multiple files selected, showing error");
+      handleError("Multiple files selected, only can select one file");
       setAlert({
         open: true,
         message: "Please upload only one image.",
@@ -98,13 +101,13 @@ const LostItemForm = () => {
       });
       return;
     }
-    
+
     if (selected.length === 0) {
-      console.log("No files selected");
+      handleError("No files selected");
       return;
     }
-    
-    console.log("Setting images state with:", selected);
+
+    // console.log("Setting images state with:", selected);
     setImages(selected);
   };
   const handleRemoveImage = (index) => {
@@ -118,7 +121,7 @@ const LostItemForm = () => {
       "item", "type", "category", "date_lost", "location", "description",
       "contact_name", "contact_email", "contact_phone", "department"
     ];
-    
+
     for (const field of requiredFields) {
       if (!formData[field]) {
         setAlert({
@@ -129,7 +132,7 @@ const LostItemForm = () => {
         return false;
       }
     }
-    
+
     if (images.length === 0) {
       setAlert({
         open: true,
@@ -138,7 +141,7 @@ const LostItemForm = () => {
       });
       return false;
     }
-    
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.contact_email)) {
@@ -149,7 +152,7 @@ const LostItemForm = () => {
       });
       return false;
     }
-    
+
     // Phone validation (simple)
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(formData.contact_phone.replace(/\D/g, ''))) {
@@ -160,26 +163,26 @@ const LostItemForm = () => {
       });
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       if (!user || !user._id) {
         throw new Error("User not logged in");
       }
-      
+
       const formDataObj = new FormData();
-      
+
       formDataObj.append("userId", user._id);
       formDataObj.append("item", formData.item);
       formDataObj.append("type", formData.type);
@@ -192,7 +195,7 @@ const LostItemForm = () => {
       formDataObj.append("contact_phone", formData.contact_phone);
       formDataObj.append("reward_offer", formData.reward_offer || "None");
       formDataObj.append("department", formData.department);
-      
+
       // Append image file and log it
       if (images.length > 0) {
         const imageFile = images[0];
@@ -206,7 +209,7 @@ const LostItemForm = () => {
       } else {
         console.log("No image selected for upload");
       }
-      
+
       // Log form data entries
       console.log("Form data entries:");
       for (let [key, value] of formDataObj.entries()) {
@@ -216,23 +219,23 @@ const LostItemForm = () => {
           console.log(`${key}: [File object]`);
         }
       }
-      
+
       console.log("Sending request to server...");
-      
+
       // Submit the form
       const response = await api.post("api/forms/create", formDataObj, {
         headers: {
           "Content-Type": "multipart/form-data",
         }
       });
-      
+
       console.log("Server response:", response.data);
-      
+
       // If the response includes Cloudinary info, log it
       if (response.data.cloudinaryResponse) {
         console.log("Cloudinary response:", response.data.cloudinaryResponse);
       }
-      
+
       if (response.data.success) {
         // Clear form on success
         setFormData({
@@ -250,24 +253,27 @@ const LostItemForm = () => {
         });
         setImages([]);
         setLocationValue(null);
-        
+
         setAlert({
           open: true,
           message: "Lost item reported successfully!",
           severity: "success"
         });
+        setTimeout(()=>{
+          navigate('/');
+        },1000)
       } else {
         throw new Error(response.data.message || "Failed to submit form");
       }
     } catch (error) {
-      console.error("Form submission error:", error);
-      
+      handleError("Form submission error:", error);
+
       // Log more detailed error information
       if (error.response) {
-        console.log("Error response status:", error.response.status);
-        console.log("Error response data:", error.response.data);
+        handleError("Error response status:", error.response.status);
+        handleError("Error response data:", error.response.data);
       }
-      
+
       setAlert({
         open: true,
         message: error.response?.data?.message || error.message || "An error occurred while submitting the form",
@@ -281,9 +287,12 @@ const LostItemForm = () => {
   return (
     <>
       <Paper sx={{ height: '100%', overflowY: 'auto', padding: '20px', borderTopLeftRadius: "20px" }}>
-        <Action />
 
+        <Box ml={isMobile ? 0 : 12} mb={2}>
+          <Action />
+        </Box>
         <Box display="flex" flexDirection="column" alignItems="center">
+
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -336,19 +345,30 @@ const LostItemForm = () => {
                   <MenuItem value="Found">Found</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  name="category"
+              <Box sx={{ width: '100%' }}>
+                <Autocomplete
+                  freeSolo
+                  options={itemCategories}
                   value={formData.category}
-                  onChange={handleChange}
-                  label="Category"
-                >
-                  {itemCategories.map((cat) => (
-                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  onChange={(e, newValue) => {
+                    setFormData(prev => ({ ...prev, category: newValue || '' }));
+                  }}
+                  onInputChange={(e, newInputValue) => {
+                    setFormData(prev => ({ ...prev, category: newInputValue }));
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Category"
+                      name="category"
+                      required
+                      fullWidth 
+                    />
+                  )}
+                />
+              </Box>
+
+
             </Stack>
 
             {/* Date Lost */}
@@ -374,11 +394,16 @@ const LostItemForm = () => {
               {/* Location Autocomplete */}
               <Box sx={{ flex: 1 }}>
                 <Autocomplete
+                  freeSolo // <-- allow manual input
                   options={locations}
                   value={locationValue}
                   onChange={(e, newValue) => {
                     setLocationValue(newValue);
                     setFormData(prev => ({ ...prev, location: newValue || '' }));
+                  }}
+                  onInputChange={(e, newInputValue) => {
+                    setLocationValue(newInputValue);
+                    setFormData(prev => ({ ...prev, location: newInputValue || '' }));
                   }}
                   renderInput={(params) => (
                     <TextField
@@ -391,6 +416,7 @@ const LostItemForm = () => {
                   )}
                 />
               </Box>
+
 
             </Stack>
 

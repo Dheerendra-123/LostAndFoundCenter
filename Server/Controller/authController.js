@@ -28,7 +28,7 @@ const signupController = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge:  60*60*1000
         });
 
         res.json({ message: "User registered successfully", success: true, user: { _id: newUser._id, name: newUser.name, email: newUser.email } });
@@ -62,7 +62,7 @@ const loginController = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 60 * 60 * 1000,//for 1 hour
+            maxAge: 60*60*1000,
             message:'cookie has been set'
         });
 
@@ -137,7 +137,7 @@ const googleAuthController = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: 60 * 60 * 1000
         });
         
         // Return user data
