@@ -1,35 +1,33 @@
-# === General ===
+# === Node Modules ===
 node_modules/
-.DS_Store
-Thumbs.db
-*.log
-*.swp
-*.bak
+client/node_modules/
+server/node_modules/
 
 # === Environment Variables ===
 .env
-.env.local
-.env.*.local
 client/.env
 server/.env
 
-# === Client ===
-client/node_modules/
+# === Build Output ===
+dist/
+build/
 client/dist/
 client/build/
-client/.vite/
-client/.DS_Store
-client/.vscode/
-
-# === Server ===
-server/node_modules/
-server/build/
 server/dist/
-server/logs
-server/.DS_Store
-server/.vscode/
+server/build/
 
-# === OS & Editor Files ===
+# === Logs ===
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === OS + Editor Files ===
+.DS_Store
+Thumbs.db
 .vscode/
+*.swp
 *.pid
 *.seed
+*.bak
