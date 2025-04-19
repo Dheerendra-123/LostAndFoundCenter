@@ -1,0 +1,35 @@
+# === General ===
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.bak
+
+# === Environment Variables ===
+.env
+.env.local
+.env.*.local
+client/.env
+server/.env
+
+# === Client ===
+client/node_modules/
+client/dist/
+client/build/
+client/.vite/
+client/.DS_Store
+client/.vscode/
+
+# === Server ===
+server/node_modules/
+server/build/
+server/dist/
+server/logs
+server/.DS_Store
+server/.vscode/
+
+# === OS & Editor Files ===
+.vscode/
+*.pid
+*.seed
