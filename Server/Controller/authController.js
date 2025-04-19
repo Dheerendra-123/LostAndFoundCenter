@@ -45,8 +45,8 @@ const signupController = async (req, res) => {
             token: token
         });
     } catch (error) {
-        console.error("Registration Error:", error);
-        return res.status(500).json({ message: "Server error", success: false });
+        console.error("Registration Error:", error.message, error.stack);
+        return res.status(500).json({ message: `Server error: ${error.message}`, success: false });
     }
 };
 
@@ -103,7 +103,7 @@ const loginController = async (req, res) => {
 
     } catch (error) {
         console.error("Login Error:", error);
-        return res.status(500).json({ message: "Internal server error", success: false });
+        res.status(500).json({ message: `Server error: ${error.message}`, success: false });
     }
 };
 
