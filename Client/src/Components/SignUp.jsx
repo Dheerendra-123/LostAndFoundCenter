@@ -390,7 +390,6 @@ const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const googleButtonRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -435,129 +434,9 @@ const Signup = () => {
   };
 
   // Function to handle the credential response from Google
-  const handleCredentialResponse = async (response) => {
-    try {
-      console.log("Google credential response received:", response);
+ 
+  
 
-      // Exchange the token with your backend
-      const authResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: response.credential }),
-        credentials: 'include'
-      });
-
-      const data = await authResponse.json();
-
-      if (!data.success) {
-        throw new Error(data.message || 'Authentication failed');
-      }
-
-      // Handle successful authentication
-      handleSuccess('Google signup successful! Setting up your account...');
-
-      // Redirect to home page
-      navigate('/');
-    } catch (error) {
-      console.error('Backend authentication error:', error);
-      handleError(error.message || 'Failed to authenticate with the server');
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
-  // Function to render the Google Sign-In button manually
-  const renderGoogleSignInButton = () => {
-    // Only render if the container exists and Google is loaded
-    if (googleButtonRef.current && window.google) {
-      window.google.accounts.id.renderButton(
-        googleButtonRef.current,
-        {
-          type: 'standard',
-          theme: 'outline',
-          size: 'large',
-          text: 'continue_with',
-          shape: 'rectangular',
-          logo_alignment: 'left',
-        }
-      );
-      // Make the container visible
-      googleButtonRef.current.style.display = 'block';
-      googleButtonRef.current.style.margin = '0 auto';
-    }
-    setGoogleLoading(false);
-  };
-
-  // Initialize Google Sign-In when component mounts
-  useEffect(() => {
-    const loadGoogleScript = () => {
-      // Check if script is already loaded
-      if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
-        return Promise.resolve();
-      }
-
-      const googleScript = document.createElement('script');
-      googleScript.src = 'https://accounts.google.com/gsi/client';
-      googleScript.async = true;
-      googleScript.defer = true;
-
-      const scriptPromise = new Promise((resolve, reject) => {
-        googleScript.onload = resolve;
-        googleScript.onerror = reject;
-      });
-
-      document.body.appendChild(googleScript);
-      return scriptPromise;
-    };
-
-    loadGoogleScript()
-      .then(() => {
-        // Initialize Google Sign-In only if the script loaded successfully
-        if (window.google) {
-          window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true,
-          });
-
-          // Render the button in the dedicated container
-          renderGoogleSignInButton();
-        }
-      })
-      .catch(err => {
-        console.error('Failed to load Google Sign-In script:', err);
-      });
-
-    // Cleanup function
-    return () => {
-      // Cancel any Google prompts if component unmounts
-      if (window.google && window.google.accounts && window.google.accounts.id) {
-        window.google.accounts.id.cancel();
-      }
-    };
-  }, []);
-
-  // Function to handle the Google Sign-In button click
-  const handleGoogleSignUp = () => {
-    setGoogleLoading(true);
-
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      window.google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('One Tap UI skipped or not displayed', notification.getNotDisplayedReason() || notification.getSkippedReason());
-          // Keep the loading indicator active until the button is clicked
-          setGoogleLoading(false);
-        }
-      });
-    } else {
-      console.error('Google Sign-In not initialized');
-      handleError('Google Sign-In service is not available. Please try again later.');
-      setGoogleLoading(false);
-    }
-  };
 
   return (
     <Container maxWidth="xs" sx={{
@@ -723,31 +602,6 @@ const Signup = () => {
             {isLoading ? <CircularProgress size={20} color="inherit" /> : 'Create Account'}
           </Button>
 
-          <Divider sx={{ my: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ px: 1, fontSize: '0.75rem' }}>
-              OR
-            </Typography>
-          </Divider>
-
-          {/* Custom Google Sign In Button */}
-          <Box
-            ref={googleButtonRef}
-            id="googleSignInButton"
-            sx={{
-              display: googleLoading ? 'none' : 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              py: 1,
-              px: 2,
-              borderRadius: 1.5,
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              color: 'text.primary',
-              cursor: 'pointer',
-              mt: 1.5,
-            }}
-          ></Box>
 
           <Box sx={{ textAlign: 'center', mt: 3 }}>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>

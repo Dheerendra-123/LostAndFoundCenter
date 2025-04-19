@@ -28,7 +28,6 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -67,21 +66,7 @@ const Login = () => {
     }
   };
   
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    try {
-      // This would typically redirect to Google OAuth flow
-      setTimeout(() => {
-        handleSuccess('Google authentication successful!');
-        navigate('/');
-        setGoogleLoading(false);
-      }, 1500);
-    } catch (err) {
-      console.error('Google login error:', err);
-      handleError('Failed to authenticate with Google. Please try again.');
-      setGoogleLoading(false);
-    }
-  };
+
   
   return (
     <Container maxWidth="xs" sx={{ 
@@ -227,31 +212,8 @@ const Login = () => {
             {isLoading ? <CircularProgress size={20} color="inherit" /> : 'Sign In'}
           </Button>
           
-          <Divider sx={{ my: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ px: 1, fontSize: '0.75rem' }}>
-              OR
-            </Typography>
-          </Divider>
           
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<FcGoogle />}
-            onClick={handleGoogleSignIn}
-            disabled={googleLoading}
-            sx={{ 
-              py: 1,
-              textTransform: 'none',
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              borderRadius: 1.5,
-              borderWidth: 1,
-              color: 'text.primary',
-              borderColor: 'rgba(0,0,0,0.15)',
-            }}
-          >
-            {googleLoading ? <CircularProgress size={20} color="inherit" /> : 'Sign in with Google'}
-          </Button>
+     
           
           <Box sx={{ textAlign: 'center', mt: 3 }}>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
