@@ -14,11 +14,10 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]            // allow cookies
   }));
 
-  app.options("*", cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
-  }));
+  app.use(cors(corsOptions));
 
+  // ✅ Handle preflight OPTIONS requests
+  app.options("*", cors(corsOptions));  
 app.use(express.json());
 require('dotenv').config();
 app.use(cookieParser());
