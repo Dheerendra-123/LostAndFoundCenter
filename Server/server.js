@@ -19,6 +19,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.static('public'));
+
 
 app.options("*", cors(corsOptions));
 
