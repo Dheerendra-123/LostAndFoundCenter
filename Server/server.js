@@ -11,7 +11,8 @@ const PORT = 8000;
 app.use(cors({
     origin: process.env.FRONTEND_URL, 
     credentials: true   ,
-     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]            // allow cookies
+     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]    ,
+     allowedHeaders: ['Content-Type', 'Authorization']        // allow cookies
   }));
 
 app.use(express.json());
