@@ -1,20 +1,20 @@
 # === Node Modules ===
 node_modules/
-client/node_modules/
-server/node_modules/
+Client/node_modules/
+Server/node_modules/
 
 # === Environment Variables ===
 .env
-client/.env
-server/.env
+Client/.env
+Server/.env
 
 # === Build Output ===
 dist/
 build/
-client/dist/
-client/build/
-server/dist/
-server/build/
+Client/dist/
+Client/build/
+Server/dist/
+Server/build/
 
 # === Logs ===
 *.log
