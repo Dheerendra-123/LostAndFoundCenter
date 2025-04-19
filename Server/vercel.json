@@ -1,5 +1,10 @@
 {
     "version": 2,
+    "functions": {
+      "api/auth/**": {
+        "maxDuration": 30
+      }
+    },
     "builds": [
       {
         "src": "server.js",
