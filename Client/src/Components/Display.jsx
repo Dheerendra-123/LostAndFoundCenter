@@ -541,8 +541,8 @@ const Display = () => {
                     <Typography variant="body2" color="text.secondary">
                       {[
                         "Fill out a simple form with details and photos of the item you've lost or found.",
-                        "Our system matches lost items with found items based on descriptions, locations, and dates.",
-                        "If your item is found, you'll be notified. Verify ownership and arrange for pickup."
+                        "Match lost items with found items based on descriptions, locations, and dates and Colect From Reporter",
+                        "If you Claim the Item Email will be send from Your email to reporter And Verify ownership and arrange for pickup."
                       ][index]}
                     </Typography>
                   </Box>
@@ -552,6 +552,21 @@ const Display = () => {
           </>
         )}
       </Container>
+      <Box
+      sx={{
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'flex-end',
+        backgroundColor: '#f5f5f5',
+        paddingTop:'5px',
+        paddingRight:'5px',
+        mt: 'auto', 
+      }}
+    >
+      <Typography color="text.secondary" fontSize='10px'>
+        Design And Developed By Dheerendra Dixit
+      </Typography>
+    </Box>
     </Box>
   );
 };
