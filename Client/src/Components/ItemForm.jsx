@@ -439,7 +439,7 @@ const LostItemForm = () => {
               <TextField
                 fullWidth
                 name="contact_name"
-                label="Contact Name"
+                label="Name"
                 value={formData.contact_name}
                 onChange={handleChange}
                 required
