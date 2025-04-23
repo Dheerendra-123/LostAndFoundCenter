@@ -83,8 +83,8 @@ const sendClaimNotification = async (claimer, form) => {
       port: 465,
       secure: true, // SSL
       auth: {
-        user: process.env.EMAIL_USER,     // e.g. noreply@lostandfound.dheerendra.in
-        pass: process.env.EMAIL_PASSWORD  // your Zoho email password or app password
+        user: process.env.EMAIL_USER,     
+        pass: process.env.EMAIL_PASSWORD  
       },
       logger: true,
       debug: true
