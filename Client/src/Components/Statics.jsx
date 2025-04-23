@@ -213,13 +213,13 @@ const Statistics = () => {
         }));
     };
 
-  
+
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
     const STATUS_COLORS = ['#4CAF50', '#F44336'];
 
-     // Replace your existing CustomTooltip with this improved version
-     const CustomTooltip = ({ active, payload, label }) => {
+    // Replace your existing CustomTooltip with this improved version
+    const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
                 <Paper sx={{ padding: 1, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
@@ -317,9 +317,9 @@ const Statistics = () => {
     return (
         <Container maxWidth={false} sx={{ py: 4, width: '90%', mx: 'auto' }}>
             <Box mb={5}>
-            <Action/>
+                <Action />
             </Box>
-           
+
             <Box sx={{ mb: 4 }}>
                 <Box
                     sx={{
@@ -518,7 +518,7 @@ const Statistics = () => {
 
             {/* Charts - Improved layout with matching heights */}
             <Typography variant="h6" sx={{ mb: 2 }}>Detailed Analytics</Typography>
-            <Grid container spacing={isMobile?5:9}>
+            <Grid container spacing={isMobile ? 5 : 9}>
                 {/* Bar Chart */}
                 <Grid item xs={12} lg={8}>
                     <Paper
@@ -611,17 +611,20 @@ const Statistics = () => {
                                                     cx="50%"
                                                     cy="50%"
                                                     labelLine={false}
-                                                    label={({ name, percent, cx, cy }) => {
-                                                        const labelX = cx - 100;
-                                                        const labelY = cy - 130;
+                                                    label={({ name, percent, cx, cy, midAngle, innerRadius, outerRadius }) => {
+                                                        // Calculate label position based on the angle of each segment
+                                                        const RADIAN = Math.PI / 180;
+                                                        const radius = outerRadius * 1.1; // Position labels just outside the pie
+                                                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
                                                         return (
                                                             <text
-                                                                x={labelX}
-                                                                y={labelY}
+                                                                x={x}
+                                                                y={y}
                                                                 fill="#000"
-                                                                textAnchor="start"
-                                                                dominantBaseline="hanging"
+                                                                textAnchor={x > cx ? 'start' : 'end'}
+                                                                dominantBaseline="central"
                                                             >
                                                                 {`${name}: ${(percent * 100).toFixed(0)}%`}
                                                             </text>
@@ -634,14 +637,12 @@ const Statistics = () => {
                                                     activeIndex={[]} // Empty array means no active segments
                                                     isAnimationActive={true}
                                                     onClick={null} // Disables click behavior
-                                                    // Override all styles that might cause borders
                                                     style={{ outline: 'none' }}
                                                 >
                                                     {stats.categoryData.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
                                                 </Pie>
-
                                                 <Tooltip content={<CustomTooltip />} />
                                             </PieChart>
                                         </ResponsiveContainer>
