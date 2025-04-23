@@ -222,15 +222,25 @@ import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 
 
-const ItemCard = ({ item, onClaimed, currentUser }) => {
+const ItemCard = ({ item, onClaimed, currentUser, isAuthenticated }) => {
     // console.log("CliamedBy", item.claimedBy);
     const [claimed, setClaimed] = useState(item.claimStatus || !!item.claimedBy);
     const navigate = useNavigate();
 
-    // Check if current user is the reporter of this found item
-    const isReporter = item.reportedBy && currentUser && 
-                      (item.reportedBy.id === currentUser.id || 
-                       item.reportedBy.email === currentUser.email);
+    // Check if the current user is the one who reported this item
+    const isUserReporter = () => {
+        if (!isAuthenticated || !currentUser || !item.reportedBy) return false;
+        
+        // Check different possible ID formats
+        const currentUserId = currentUser.id || currentUser.uid || currentUser._id;
+        const reporterId = item.reportedBy.id || item.reportedBy.uid || item.reportedBy._id;
+        
+        return (
+            currentUserId === reporterId || 
+            currentUser.email === item.reportedBy.email ||
+            (item.reportedByUserId && item.reportedByUserId === currentUserId)
+        );
+    };
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -241,7 +251,7 @@ const ItemCard = ({ item, onClaimed, currentUser }) => {
         navigate(`/blog-post/${item.id}`, { state: { item } });
     };
 
-    // Determine the button text based on item type and user relationship
+    // Determine button text based on context
     const getButtonText = () => {
         if (item.type === 'Lost') {
             return "View Details";
@@ -251,7 +261,7 @@ const ItemCard = ({ item, onClaimed, currentUser }) => {
             return "View Claimed Item";
         }
         
-        if (isReporter) {
+        if (isUserReporter()) {
             return "Manage Your Item";
         }
         
