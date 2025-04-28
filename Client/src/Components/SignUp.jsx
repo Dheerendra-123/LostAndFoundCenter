@@ -414,16 +414,26 @@ const Signup = () => {
         '/api/auth/signup',
         formData,
       );
-
+      
       if (response.data.success) {
         handleSuccess(response.data.message || 'Account created successfully! Redirecting to login...');
         setTimeout(() => navigate('/login'), 1500);
+      } else if (response.data.errors && Array.isArray(response.data.errors)) {
+        // Handle validation errors from the middleware
+        const validationErrorMessage = response.data.errors.join('\n');
+        handleError(validationErrorMessage || response.data.message || 'Validation failed');
       } else {
         handleError(response.data.message || 'Signup failed');
       }
     } catch (err) {
       console.error('Signup error:', err);
-      handleError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const validationErrorMessage = err.response.data.errors.join('\n');
+        handleError(validationErrorMessage || err.response.data.message || 'Validation failed');
+      } else {
+        handleError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

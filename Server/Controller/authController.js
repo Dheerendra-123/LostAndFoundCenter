@@ -69,14 +69,7 @@ const loginController = async (req, res) => {
             return res.status(404).json({ message: "User does not exist", success: false });
         }
 
-        // Handle Google auth users who don't have a password
-        if (!user.password) {
-            return res.status(401).json({ 
-                message: "This account uses Google authentication", 
-                success: false,
-                authMethod: 'google'
-            });
-        }
+        
 
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {

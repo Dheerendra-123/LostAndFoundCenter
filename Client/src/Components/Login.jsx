@@ -50,17 +50,27 @@ const Login = () => {
         '/api/auth/login',
         formData
       );
-      
+          
       if (response.data.success) {
         localStorage.setItem('user', JSON.stringify(response.data.user || { email: formData.email }));
         handleSuccess(response.data.message || 'Login successful!');
         setTimeout(() => navigate('/'), 1500);
+      } else if (response.data.errors && Array.isArray(response.data.errors)) {
+        // Handle validation errors from the middleware
+        const validationErrorMessage = response.data.errors.join('\n');
+        handleError(validationErrorMessage || response.data.message || 'Validation failed');
       } else {
         handleError(response.data.message || 'Login failed');
       }
     } catch (err) {
       console.error('Login error:', err);
-      handleError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const validationErrorMessage = err.response.data.errors.join('\n');
+        handleError(validationErrorMessage || err.response.data.message || 'Validation failed');
+      } else {
+        handleError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
